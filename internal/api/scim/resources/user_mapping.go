@@ -319,6 +319,7 @@ func (h *UsersHandler) mapWriteModelToScimUser(ctx context.Context, user *comman
 			{
 				Value:   string(user.Email),
 				Primary: true,
+				Type:    "work",
 			},
 		}
 	}

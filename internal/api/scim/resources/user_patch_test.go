@@ -685,6 +685,38 @@ func TestOperationCollection_Apply(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "replace filter emails complex subattribute value",
+			op: &patch.Operation{
+				Operation: patch.OperationTypeReplace,
+				Path:      test.Must(filter.ParsePath(`emails[primary eq true].value`)),
+				Value:     json.RawMessage(`"babs.new@jensen.org"`),
+			},
+			want: &ScimUser{
+				Emails: []*ScimEmail{
+					{
+						Value:   "babs.new@jensen.org",
+						Primary: true,
+					},
+				},
+			},
+		},
+		{
+			name: "replace filter emails complex subattribute type value",
+			op: &patch.Operation{
+				Operation: patch.OperationTypeReplace,
+				Path:      test.Must(filter.ParsePath(`emails[type eq "work"].value`)),
+				Value:     json.RawMessage(`"babs.new@jensen.org"`),
+			},
+			want: &ScimUser{
+				Emails: []*ScimEmail{
+					{
+						Value:   "babs.new@jensen.org",
+						Primary: true,
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -711,6 +743,7 @@ func TestOperationCollection_Apply(t *testing.T) {
 					{
 						Value:   "jeanie.pendleton@example.com",
 						Primary: true,
+						Type:    "work",
 					},
 				},
 				PhoneNumbers: []*ScimPhoneNumber{

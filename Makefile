@@ -1,11 +1,11 @@
-go_bin := "$$(go env GOPATH)/bin"
+go_bin := "$$(go env GOBIN)"
 gen_authopt_path := "$(go_bin)/protoc-gen-authoption"
 gen_zitadel_path := "$(go_bin)/protoc-gen-zitadel"
 
 now := $(shell date '+%Y-%m-%dT%T%z' | sed -E 's/.([0-9]{2})([0-9]{2})$$/-\1:\2/')
 VERSION ?= development-$(now)
 COMMIT_SHA ?= $(shell git rev-parse HEAD)
-ZITADEL_IMAGE ?= zitadel:local
+ZITADEL_IMAGE ?= zitadel:local2
 
 GOCOVERDIR = tmp/coverage
 INTEGRATION_DB_FLAVOR ?= postgres
@@ -18,7 +18,7 @@ compile: core_build console_build compile_pipeline
 
 .PHONY: docker_image
 docker_image: compile
-	DOCKER_BUILDKIT=1 docker build -f build/Dockerfile -t $(ZITADEL_IMAGE) .
+	DOCKER_BUILDKIT=1 docker build -f build/Dockerfile -t $(ZITADEL_IMAGE) . --platform=linux/amd64
 
 .PHONY: compile_pipeline
 compile_pipeline: console_move
@@ -54,11 +54,11 @@ core_assets:
 core_api_generator:
 ifeq (,$(wildcard $(gen_authopt_path)))
 	go install internal/protoc/protoc-gen-authoption/main.go \
-    && mv $$(go env GOPATH)/bin/main $(gen_authopt_path)
+    && mv $$(go env GOBIN)/main $(gen_authopt_path)
 endif
 ifeq (,$(wildcard $(gen_zitadel_path)))
 	go install internal/protoc/protoc-gen-zitadel/main.go \
-    && mv $$(go env GOPATH)/bin/main $(gen_zitadel_path)
+    && mv $$(go env GOBIN)/main $(gen_zitadel_path)
 endif
 
 .PHONY: core_grpc_dependencies
